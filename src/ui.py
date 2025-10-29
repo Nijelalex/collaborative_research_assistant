@@ -1,30 +1,76 @@
+# src/ui.py
 import streamlit as st
-from langgraph_flow import build_graph
+import time
+from langgraph_flow import build_graph, retriever_node, summarizer_node, critic_node, writer_node
 
 st.set_page_config(page_title="Collaborative Research Assistant", page_icon="🧠", layout="wide")
+
+# Custom CSS for full-width layout and styled boxes
+st.markdown(
+    """
+    <style>
+        .block-container {
+            max-width: 95% !important;
+            padding-top: 2rem;
+        }
+        .agent-box {
+            background-color: #f9f9f9;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+        }
+        .title-box {
+            color: #222;
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 st.title("🧠 Collaborative Research Assistant")
+st.markdown("Generate research summaries, critiques, and literature reviews using multi-agent collaboration.")
 
 graph = build_graph()
-topic = st.text_input("Enter your research topic:")
+
+topic = st.text_input("Enter your research topic:", placeholder="e.g. Large Language Models in Healthcare")
 
 if st.button("Generate Literature Review") and topic:
-    # Prepare columns for visual layout
-    col_status, col_spacer = st.columns([1, 3])
-    with col_status:
-        status_box = st.empty()
+    st.info(f"🚀 Starting research process for: **{topic}**")
 
-    with st.spinner("Collaborating agents are working..."):
-        # Initialize state
-        state = {"topic": topic}
-        status_box.info("🔍 Retrieving top papers from Semantic Scholar...")
-        result = graph.invoke(state)
+    # Create progress bar and status placeholder
+    progress = st.progress(0)
+    status = st.empty()
 
+    state = {"topic": topic}
+
+    # Manual execution for real-time feedback
+    steps = [
+    (retriever_node, "🔍 Retrieving top papers from Semantic Scholar..."),
+    (summarizer_node, "🧩 Summarizing research findings..."),
+    (critic_node, "🧠 Critiquing methodology and identifying gaps..."),
+    (writer_node, "✏️ Writing literature review..."),
+    ]
+
+    for i, (node_func, message) in enumerate(steps):
+        status.info(message)
+        state = node_func(state)
+        progress.progress((i + 1) / len(steps))
+        time.sleep(0.8)
+    
     # Extract outputs
-    summary = result["summary"].content
-    critique = result["critique"].content
-    review = result["final"].content
-    citations = result.get("citations","No citations available")
-        
+    summary = state["summary"].content
+    critique = state["critique"].content
+    review = state["final"].content
+    citations = state.get("citations", "No references available.")
+
+    # Final completion message
+    progress.progress(1.0)
+    status.success("✅ All agents completed successfully!")
+
     # Display results in 2x2 grid layout
     col1, col2 = st.columns(2)
 
@@ -42,10 +88,8 @@ if st.button("Generate Literature Review") and topic:
         st.markdown('<div class="title-box">✏️ Literature Review</div>', unsafe_allow_html=True)
         st.markdown(f'<div class="agent-box">{review}</div>', unsafe_allow_html=True)
 
-
     with col4:
         st.markdown('<div class="title-box">📚 References</div>', unsafe_allow_html=True)
         st.markdown(f'<div class="agent-box">{citations}</div>', unsafe_allow_html=True)
 
-
-    st.success("✅ Research summary complete!")
+    st.success("🎉 Research summary complete!")

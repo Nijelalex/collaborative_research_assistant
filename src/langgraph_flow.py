@@ -14,11 +14,13 @@ class ResearchAssistantState(TypedDict):
     context: str
     summary: str
     critique: str
+    citations: str
     final: str
+    retrieval_failed: bool
 
 def retriever_node(state: ResearchAssistantState) -> ResearchAssistantState:
     retrieve = get_retriever_agent()
-    state["context"] = retrieve(state["topic"])
+    state["retrieval_failed"], state["citations"], state["context"] = retrieve(state["topic"])
     return state
 
 def summarizer_node(state: ResearchAssistantState) -> ResearchAssistantState:
@@ -44,6 +46,11 @@ def build_graph():
     g.add_node("writer", writer_node)
 
     g.set_entry_point("retriever")
+    
+    def check_retrieval(state):
+        return END if state.get("retrieval_failed") else "summarizer"
+
+    g.add_conditional_edges("retriever", check_retrieval, {"summarizer": "summarizer", END: END})
     g.add_edge("retriever", "summarizer")
     g.add_edge("summarizer", "critic")
     g.add_edge("critic", "writer")
