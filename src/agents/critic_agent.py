@@ -1,14 +1,15 @@
 from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage
 
 def get_critic_agent():
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.5)
 
     def critique(summary):
-        prompt = (
+        prompt = HumanMessage(content=
             "Critically evaluate the following research summary: "
             "identify strengths, weaknesses, and potential research gaps.\n\n"
             f"{summary}\n\nCritique:"
         )
-        return llm.predict(prompt)
+        return llm.invoke([prompt])
     
     return critique

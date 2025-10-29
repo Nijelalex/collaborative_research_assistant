@@ -2,10 +2,28 @@
 
 Build a multi-agent AI “research team” that:
 
-- Retrieves academic papers or abstracts (via RAG)
+# Literature Review Pipeline
 
-- Summarizes them
+**User Topic**  
 
-- Critiques or contrasts findings
+**Retriever Agent**  
+- Uses Semantic Scholar API  
+- Retrieves abstracts  
+- Builds RAG context  
 
-- Synthesizes a concise literature review
+**Summarizer Agent**  
+- Summarizes top 10 abstracts         ↓  
+
+**Critic Agent**  
+- Evaluates quality of summaries  
+- Identifies gaps  
+
+**Writer Agent**  
+- Synthesizes literature review  
+
+### To do
+ 
+RAG, save by topic and tags to vector db
+topic searched previously to be seen
+
+Create session for each user, save memory (UI also changes)

@@ -1,8 +1,10 @@
 langgraph
 langchain
-chromadb
 openai
+langchain_openai
 tiktoken
 pypdf
 streamlit
 python-dotenv
+requests
+chromadb
