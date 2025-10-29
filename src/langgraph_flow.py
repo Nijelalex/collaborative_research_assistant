@@ -16,7 +16,7 @@ class ResearchAssistantState(TypedDict):
     critique: str
     citations: str
     final: str
-    retrieval_failed: bool
+    retrieval_failed: bool = False
 
 def retriever_node(state: ResearchAssistantState) -> ResearchAssistantState:
     retrieve = get_retriever_agent()
@@ -47,11 +47,10 @@ def build_graph():
 
     g.set_entry_point("retriever")
     
-    def check_retrieval(state):
+    def check_retrieval(state: ResearchAssistantState) -> ResearchAssistantState:
         return END if state.get("retrieval_failed") else "summarizer"
 
     g.add_conditional_edges("retriever", check_retrieval, {"summarizer": "summarizer", END: END})
-    g.add_edge("retriever", "summarizer")
     g.add_edge("summarizer", "critic")
     g.add_edge("critic", "writer")
     g.add_edge("writer", END)
