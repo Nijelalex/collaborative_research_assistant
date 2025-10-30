@@ -3,8 +3,10 @@ from pathlib import Path
 import time
 import base64
 from langgraph_flow import build_graph
+from db import init_db, save_rag_entry_with_embedding, search_similar_rag
 
 st.set_page_config(page_title="Collaborative Research Assistant", page_icon="🧠", layout="wide")
+
 
 # --- Base directory of project ---
 BASE_DIR = Path.cwd()
@@ -37,6 +39,9 @@ graph = build_graph()
 
 topic = st.text_input("Enter your research topic:", placeholder="e.g. Large Language Models in Healthcare")
 
+method = st.radio("Choose retrieval method:", ["Semantic API", "Archives"])
+
+
 if st.button("Generate Literature Review") and topic:
     st.info(f"🚀 Starting research process for: **{topic}**")
 
@@ -55,10 +60,30 @@ if st.button("Generate Literature Review") and topic:
         "retrieval_failed": False
         }
 
-    # --- Run the full LangGraph pipeline ---
+    # --- Integrate RAG / Archives ✅
     start_time = time.time()
-    state = graph.invoke(state)
+
+    if method == "Archives":
+        # Starting DB
+        init_db()
+        # Try semantic similarity search in RAG
+        rag_results = search_similar_rag(topic, top_k=1)
+        if rag_results:
+            st.success(f"✅ Found similar topic in Archives: {rag_results[0][1]['topic']}")
+            state.update(rag_results[0][1])
+        else:
+            st.warning("⚠️ No similar topic found in Archives, fetching via Semantic API...")
+            state = graph.invoke(state)
+            if not state.get("retrieval_failed", False):
+                save_rag_entry_with_embedding(state)
+    else:
+        # Semantic API selected
+        state = graph.invoke(state)
+        if not state.get("retrieval_failed", False):
+            save_rag_entry_with_embedding(state)
+
     elapsed = time.time() - start_time
+
 
     # Final completion message
     progress.progress(1.0)
