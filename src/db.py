@@ -2,7 +2,13 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import pickle
 import sqlite3
+import streamlit as st
 
+@st.cache_resource
+def get_embedding_model():
+    return SentenceTransformer('all-MiniLM-L6-v2')
+
+DB_PATH = "outputs/rag_store.db"
 
 def init_db():
     import sqlite3
@@ -15,7 +21,8 @@ def init_db():
         critique TEXT,
         citations TEXT,
         final TEXT,
-        embedding BLOB
+        embedding BLOB,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """
     conn = sqlite3.connect(DB_PATH)
@@ -23,7 +30,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = get_embedding_model()
 
 def save_rag_entry_with_embedding(state, DB_PATH="outputs/rag_store.db"):
     if state.get("retrieval_failed"):
@@ -37,8 +44,8 @@ def save_rag_entry_with_embedding(state, DB_PATH="outputs/rag_store.db"):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT OR REPLACE INTO rag_store (topic, context, summary, critique, citations, final, embedding)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT OR REPLACE INTO rag_store (topic, context, summary, critique, citations, final, embedding, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
     """, (
         state["topic"],
         state.get("context",""),
@@ -80,3 +87,22 @@ def search_similar_rag(query, top_k=3, DB_PATH="outputs/rag_store.db"):
     # Sort by similarity descending
     results.sort(reverse=True, key=lambda x: x[0])
     return results[:top_k]
+
+def get_recent_topics(limit=5):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT topic, created_at FROM rag_store ORDER BY created_at DESC LIMIT ?", (limit,))
+    rows = cursor.fetchall()
+    conn.close()
+    # Convert to list of dicts for Streamlit table
+    return [{"topic": r[0], "date": r[1]} for r in rows]
+
+def save_feedback(topic, content, feedback):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO rag_feedback (topic, content, feedback, created_at)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+    """, (topic, content, feedback))
+    conn.commit()
+    conn.close()

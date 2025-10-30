@@ -6,6 +6,9 @@ from agents.critic_agent import get_critic_agent
 from agents.writer_agent import get_writer_agent
 from typing import TypedDict
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 

@@ -1,7 +1,9 @@
 .block-container {
-    max-width: 70% !important;
+    max-width: 88% !important;
+    left: 12% !important;
     padding-top: 10px;
     margin: 0 auto !important;
+    position: fixed;
 }
 .agent-box {
     background-color: #f9f9f9;
@@ -9,6 +11,14 @@
     border-radius: 12px;
     box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
     margin-bottom: 1rem;
+}
+
+.graph_bar{
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
+    margin-top: 5px;
+    width: 215px;
 }
 
 .title-box {
@@ -46,6 +56,46 @@
     padding: 10px;
     overflow-y: auto; /* scroll if content too tall */
     z-index: 999;
+}
+
+.left-bar {
+    position: fixed;
+    top: 60px; /* adjust if you want below Streamlit menu */
+    left: 0;
+    width: 15% !important;
+    height: 100vh; /* fills most of viewport height */
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border-left: 2px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    overflow-y: auto; /* scroll if content too tall */
+    z-index: 999;
+}
+
+.left-bar a{
+    background-color: #4CAF50;  /* Green button */
+    color: white;               /* White text */
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+#graph_overview{
+    background-color: #4CAF50;  /* Green button */
+    color: white;               /* White text */
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 6px;
+    border: none;
 }
 
 /* Graph image styling */
