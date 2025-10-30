@@ -29,14 +29,10 @@ with open(LOGO_PATH, "rb") as f:
 
 # --- CSS & JS paths ---
 css_path = BASE_DIR / "static" / "css" / "style.css"
-js_path  = BASE_DIR / "static" / "js" / "graph_modal.js"
 
 # Load external CSS & JS
 with open(css_path) as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-with open(js_path) as f:
-    st.markdown(f"<script>{f.read()}</script>", unsafe_allow_html=True)
 
 st.markdown(f"""<div class="left-bar">
     <img src="data:image/png;base64,{logo_image_base64}" style="max-width: 100%; height: 140px; margin-bottom: 20px;">

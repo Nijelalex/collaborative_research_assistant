@@ -1,9 +1,9 @@
 .block-container {
     max-width: 88% !important;
-    left: 12% !important;
+    left: 6% !important;
     padding-top: 10px;
     margin: 0 auto !important;
-    position: fixed;
+    position: relative;
 }
 .agent-box {
     background-color: #f9f9f9;
@@ -41,21 +41,8 @@
     padding-right: 20px; /* space from vertical bar */
 }
 
-/* Right-side vertical bar */
-.right-bar {
-    position: fixed;
-    top: 60px; /* adjust if you want below Streamlit menu */
-    right: 0;
-    width: 15% !important;
-    height: 90vh; /* fills most of viewport height */
-    background-color: #f9f9f9;
-    border-left: 2px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 10px;
-    overflow-y: auto; /* scroll if content too tall */
-    z-index: 999;
+#collaborative-research-assistant{
+    font-size: 30px !important;
 }
 
 .left-bar {
