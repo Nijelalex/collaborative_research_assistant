@@ -1,36 +1,34 @@
 import streamlit as st
+from pathlib import Path
 import time
-from PIL import Image
-import io
-from langgraph_flow import build_graph, retriever_node, summarizer_node, critic_node, writer_node
+import base64
+from langgraph_flow import build_graph
 
 st.set_page_config(page_title="Collaborative Research Assistant", page_icon="🧠", layout="wide")
 
-# Custom CSS for full-width layout and styled boxes
-st.markdown(
-    """
-    <style>
-        .block-container {
-            max-width: 95% !important;
-            padding-top: 2rem;
-        }
-        .agent-box {
-            background-color: #f9f9f9;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 1rem;
-        }
-        .title-box {
-            color: #222;
-            font-weight: 600;
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+# --- Base directory of project ---
+BASE_DIR = Path.cwd()
+GRAPH_PATH = Path.cwd() / "images" / "graph.png"
+
+with open(GRAPH_PATH, "rb") as f:
+    graph_image_base64 = base64.b64encode(f.read()).decode("utf-8")
+
+# --- CSS & JS paths ---
+css_path = BASE_DIR / "static" / "css" / "style.css"
+js_path  = BASE_DIR / "static" / "js" / "graph_modal.js"
+
+# Load external CSS & JS
+with open(css_path) as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+with open(js_path) as f:
+    st.markdown(f"<script>{f.read()}</script>", unsafe_allow_html=True)
+
+st.markdown(f"""<div class="right-bar">
+    <p>📊 Graph Overview</p>
+    <img src="data:image/png;base64,{graph_image_base64}" style="max-width: 100%; height: auto; margin-bottom: 20px;">
+</div>
+""", unsafe_allow_html=True)
 
 st.title("🧠 Collaborative Research Assistant")
 st.markdown("Generate research summaries, critiques, and literature reviews using multi-agent collaboration.")
@@ -66,7 +64,7 @@ if st.button("Generate Literature Review") and topic:
     progress.progress(1.0)
 
     if state.get("retrieval_failed", False):
-        status.warning("⚠️ Retrieval failed — unable to find relevant papers for your topic.")
+        status.warning("⚠️ Retrieval failed — Semantic API request free tier exceeded.")
     else:
         status.success(f"✅ All agents completed in {elapsed:.1f} seconds!")
     
@@ -104,11 +102,3 @@ if st.button("Generate Literature Review") and topic:
         st.markdown(f'<div class="agent-box">{citations}</div>', unsafe_allow_html=True)
 
     st.success("🎉 Research summary complete!")
-
-    png_bytes = graph.get_graph().draw_mermaid_png()
-
-    # convert bytes to PIL image
-    image = Image.open(io.BytesIO(png_bytes))
-
-    with st.expander("📊 Show Research Graph (click to expand/close)"):
-        st.image(image, caption="Collaborative Research Assistant Graph", use_container_width=True)
