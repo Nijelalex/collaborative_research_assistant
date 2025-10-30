@@ -3,6 +3,7 @@ from pathlib import Path
 import time
 import base64
 import pandas as pd
+import numpy as np
 from langgraph_flow import build_graph
 from db import (
     init_db, 
@@ -61,19 +62,20 @@ with st.expander("📜 Recently Asked Topics", expanded=False):
 
     if recent_topics:
         df = pd.DataFrame(recent_topics)  # Convert to DataFrame for nice table display
+        df.index = np.arange(1, len(df) + 1)
         st.table(df)  # Streamlit's built-in table
     else:
         st.info("No recent topics found.")
 
 
 
-method = st.radio("Choose retrieval method:", ["Semantic API", "Archives"])
+method = st.radio("Choose retrieval method:", ["Semantic API", "Archives"],horizontal=True)
 
 
 if st.button("Generate Literature Review") and topic:
     st.info(f"🚀 Starting research process for: **{topic}**")
     # Create progress bar and status placeholder
-    progress = st.progress(0)
+    # progress = st.progress(0)
     status = st.empty()
 
     
@@ -116,8 +118,8 @@ if st.button("Generate Literature Review") and topic:
     elapsed = time.time() - start_time
 
 
-    # Final completion message
-    progress.progress(1.0)
+    # # Final completion message
+    # progress.progress(1.0)
 
     if state.get("retrieval_failed", False):
         status.warning("⚠️ Retrieval failed — Semantic API request free tier exceeded.")

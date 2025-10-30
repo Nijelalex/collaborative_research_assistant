@@ -13,6 +13,20 @@
     margin-bottom: 1rem;
 }
 
+.col_heading {
+    background-color: #4CAF50;  /* Green button */
+    color: white;    
+}
+
+.index_name{
+    background-color: #4CAF50;  /* Green button */
+    color: white;   
+}
+
+.stAlertContainer{
+    padding: 10px !important;
+}
+
 .graph_bar{
     background-color: #f9f9f9;
     border-radius: 12px;
