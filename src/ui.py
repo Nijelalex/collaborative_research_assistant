@@ -1,6 +1,7 @@
-# src/ui.py
 import streamlit as st
 import time
+from PIL import Image
+import io
 from langgraph_flow import build_graph, retriever_node, summarizer_node, critic_node, writer_node
 
 st.set_page_config(page_title="Collaborative Research Assistant", page_icon="🧠", layout="wide")
@@ -45,31 +46,41 @@ if st.button("Generate Literature Review") and topic:
     progress = st.progress(0)
     status = st.empty()
 
-    state = {"topic": topic}
+    state = {
+        "student_id": "S001", # Dummy (until user session created)
+        "topic": topic,
+        "context": "",
+        "summary": "",
+        "critique": "",
+        "citations": "",
+        "final": "", 
+        "retrieval_failed": False
+        }
 
-    # Manual execution for real-time feedback
-    steps = [
-    (retriever_node, "🔍 Retrieving top papers from Semantic Scholar..."),
-    (summarizer_node, "🧩 Summarizing research findings..."),
-    (critic_node, "🧠 Critiquing methodology and identifying gaps..."),
-    (writer_node, "✏️ Writing literature review..."),
-    ]
-
-    for i, (node_func, message) in enumerate(steps):
-        status.info(message)
-        state = node_func(state)
-        progress.progress((i + 1) / len(steps))
-        time.sleep(0.8)
-    
-    # Extract outputs
-    summary = state["summary"].content
-    critique = state["critique"].content
-    review = state["final"].content
-    citations = state.get("citations", "No references available.")
+    # --- Run the full LangGraph pipeline ---
+    start_time = time.time()
+    state = graph.invoke(state)
+    elapsed = time.time() - start_time
 
     # Final completion message
     progress.progress(1.0)
-    status.success("✅ All agents completed successfully!")
+
+    if state.get("retrieval_failed", False):
+        status.warning("⚠️ Retrieval failed — unable to find relevant papers for your topic.")
+    else:
+        status.success(f"✅ All agents completed in {elapsed:.1f} seconds!")
+    
+    # ---- safe extraction ----
+    def safe_get(value, default="Not available"):
+        if not value:
+            return default
+        return getattr(value, "content", value)
+    
+    # Extract outputs
+    summary = safe_get(state.get("summary"),default="Semantic API free requests exceeded")
+    critique = safe_get(state.get("critique"), default="🧐 Critique unavailable")
+    review = safe_get(state.get("final"),default="📚 Literature review unavailable")
+    citations = safe_get(state.get("citations"),default="🔖 References pending")
 
     # Display results in 2x2 grid layout
     col1, col2 = st.columns(2)
@@ -93,3 +104,11 @@ if st.button("Generate Literature Review") and topic:
         st.markdown(f'<div class="agent-box">{citations}</div>', unsafe_allow_html=True)
 
     st.success("🎉 Research summary complete!")
+
+    png_bytes = graph.get_graph().draw_mermaid_png()
+
+    # convert bytes to PIL image
+    image = Image.open(io.BytesIO(png_bytes))
+
+    with st.expander("📊 Show Research Graph (click to expand/close)"):
+        st.image(image, caption="Collaborative Research Assistant Graph", use_container_width=True)

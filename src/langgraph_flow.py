@@ -5,6 +5,9 @@ from agents.summarizer_agent import get_summarizer_agent
 from agents.critic_agent import get_critic_agent
 from agents.writer_agent import get_writer_agent
 from typing import TypedDict
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 class ResearchAssistantState(TypedDict):
     """State for the research assistant workflow"""
@@ -16,7 +19,7 @@ class ResearchAssistantState(TypedDict):
     critique: str
     citations: str
     final: str
-    retrieval_failed: bool = False
+    retrieval_failed: bool
 
 def retriever_node(state: ResearchAssistantState) -> ResearchAssistantState:
     retrieve = get_retriever_agent()
@@ -45,14 +48,25 @@ def build_graph():
     g.add_node("critic", critic_node)
     g.add_node("writer", writer_node)
 
-    g.set_entry_point("retriever")
-    
-    def check_retrieval(state: ResearchAssistantState) -> ResearchAssistantState:
-        return END if state.get("retrieval_failed") else "summarizer"
+   
+    def check_retrieval(state: ResearchAssistantState) -> str:        
+        # return "END" if state.get("retrieval_failed") else "summarizer"
+        logging.info(f"my_router_function called with state: {state}")
+        if state.get("retrieval_failed", False):
+            return "END"
+        return "summarizer"
 
-    g.add_conditional_edges("retriever", check_retrieval, {"summarizer": "summarizer", END: END})
+    g.add_conditional_edges(
+        "retriever",
+        check_retrieval,
+        {"summarizer": "summarizer", 
+         "END": END
+         }
+    )
     g.add_edge("summarizer", "critic")
     g.add_edge("critic", "writer")
     g.add_edge("writer", END)
+
+    g.set_entry_point("retriever")
 
     return g.compile()
