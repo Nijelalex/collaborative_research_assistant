@@ -29,7 +29,7 @@ def get_retriever_agent():
             abstract = paper.get("abstract", "No abstract available")
             url = paper.get("url", "")
             summaries.append(f"📘 **{title} ({year})**\n{abstract}\n🔗 {url}\n")
-            citations = citations + f"<ul><li><a href='{year}' target='_blank'>{title}</a> ({year}) – {', '.join([a['name'] for a in paper.get('authors', [])[:3]])}</li></ul><br>"
+            citations = citations + f"<ul><li><a href='{url}' target='_blank'>{title}</a> ({year}) – {', '.join([a['name'] for a in paper.get('authors', [])[:3]])}</li></ul><br>"
 
         retrieval_failed = False
 

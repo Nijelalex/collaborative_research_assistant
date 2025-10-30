@@ -44,10 +44,13 @@ method = st.radio("Choose retrieval method:", ["Semantic API", "Archives"])
 
 if st.button("Generate Literature Review") and topic:
     st.info(f"🚀 Starting research process for: **{topic}**")
-
     # Create progress bar and status placeholder
     progress = st.progress(0)
     status = st.empty()
+
+    
+    def status_update(msg):
+        status.info(msg)
 
     state = {
         "student_id": "S001", # Dummy (until user session created)
@@ -63,9 +66,11 @@ if st.button("Generate Literature Review") and topic:
     # --- Integrate RAG / Archives ✅
     start_time = time.time()
 
+    # Starting DB
+    init_db()
+
     if method == "Archives":
-        # Starting DB
-        init_db()
+    
         # Try semantic similarity search in RAG
         rag_results = search_similar_rag(topic, top_k=1)
         if rag_results:
@@ -73,12 +78,12 @@ if st.button("Generate Literature Review") and topic:
             state.update(rag_results[0][1])
         else:
             st.warning("⚠️ No similar topic found in Archives, fetching via Semantic API...")
-            state = graph.invoke(state)
+            state = graph.invoke(state, callback=status_update)
             if not state.get("retrieval_failed", False):
                 save_rag_entry_with_embedding(state)
     else:
         # Semantic API selected
-        state = graph.invoke(state)
+        state = graph.invoke(state, callback=status_update)
         if not state.get("retrieval_failed", False):
             save_rag_entry_with_embedding(state)
 

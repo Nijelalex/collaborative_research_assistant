@@ -21,24 +21,32 @@ class ResearchAssistantState(TypedDict):
     final: str
     retrieval_failed: bool
 
-def retriever_node(state: ResearchAssistantState) -> ResearchAssistantState:
+def retriever_node(state: ResearchAssistantState, callback=None) -> ResearchAssistantState:
     retrieve = get_retriever_agent()
     state["retrieval_failed"], state["citations"], state["context"] = retrieve(state["topic"])
+    if callback:
+        callback("🔍 Retriever agent completed")
     return state
 
-def summarizer_node(state: ResearchAssistantState) -> ResearchAssistantState:
+def summarizer_node(state: ResearchAssistantState, callback=None) -> ResearchAssistantState:
     summarize = get_summarizer_agent()
     state["summary"] = summarize(state["context"])
+    if callback:
+        callback("🧩 Summarizer agent completed!")
     return state
 
-def critic_node(state: ResearchAssistantState) -> ResearchAssistantState:
+def critic_node(state: ResearchAssistantState, callback=None) -> ResearchAssistantState:
     critique = get_critic_agent()
     state["critique"] = critique(state["summary"])
+    if callback:
+        callback("🧐 Critique agent completed!")
     return state
 
-def writer_node(state: ResearchAssistantState) -> ResearchAssistantState:
+def writer_node(state: ResearchAssistantState, callback=None) -> ResearchAssistantState:
     writer = get_writer_agent()
     state["final"] = writer(state["summary"], state["critique"])
+    if callback:
+        callback("✏️ Writer agent completed!")
     return state
 
 def build_graph():
