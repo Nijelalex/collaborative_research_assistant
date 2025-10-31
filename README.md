@@ -1,31 +1,62 @@
-# Research Assistant
+# 🧠 AI Research Assistant
 
-Build a multi-agent AI “research team” that:
+A **Generative AI-powered assistant** that helps students and researchers **discover, summarize, and critique academic papers** — to support **assignments, theses, or self-learning**.
 
-# Literature Review Pipeline
+This app integrates **retrieval-augmented generation (RAG)** with a multi-agent graph flow, providing a full research workflow — from topic search to literature review generation and Q&A on archived knowledge.
 
-**User Topic**  
+---
 
-**Retriever Agent**  
-- Uses Semantic Scholar API  
-- Retrieves abstracts  
-- Builds RAG context  
+## 🚀 Features
 
-**Summarizer Agent**  
-- Summarizes top 10 abstracts         ↓  
+- **Semantic Scholar API Integration** — Retrieve recent, relevant research papers based on your topic.  
+- **Local Archives (RAG)** — Store and retrieve previously analyzed topics using embeddings.  
+- **Document Uploads** — Upload your own **PDF** or **DOCX** research papers for summarization.  
+- **Multi-Agent Graph** — workflow created between agents (retrieval, summarization, critique, and final documentation).  
+- **Research Memory (SQLite DB)** — Archives topics, embeddings, and feedback for continuous improvement.  
+- **Interactive Streamlit UI** — Simple, elegant interface with visualization and history tracking.  
+- **LangSmith Integration** — Direct link to your LangSmith dashboard for pipeline monitoring and tracing.  
+- **Feedback System (Not working currently)** — Like/dislike feedback for summaries to enhance continuous improvement.  
+- **Q&A Module** — Ask follow-up questions based on archived research summaries.
 
-**Critic Agent**  
-- Evaluates quality of summaries  
-- Identifies gaps  
+---
 
-**Writer Agent**  
-- Synthesizes literature review  
+## 🧪 Run the App
 
-### To do
- 
-RAG, save by topic and tags to vector db
-topic searched previously to be seen
+`streamlit run src/ui.py`
 
-Create session for each user, save memory (UI also changes)
+##🦉 Usage Workflow
 
-Create error - Done
+1. Enter a Topic — e.g. “Large Language Models in Healthcare”.
+
+2. Select Retrieval Mode:
+
+    - Semantic Scholar API — Fetch and analyze live papers.
+
+    - Archives — Search your local RAG database for past analyses.
+
+    - Upload Document — Provide your own PDF/DOCX file for summarization.
+
+3. Generate Literature Review — The app orchestrates multiple AI agents to produce:
+
+    - Summary
+
+    - Critical Analysis
+
+    - Literature Review
+
+    - References
+
+4. Ask Questions — Use the Q&A box to query archived research.
+
+---
+
+## Components
+
+| Component | Description |
+|------------|-------------|
+| `langgraph_flow.py` | Defines the LangGraph agent flow for research orchestration. |
+| `db.py` | Handles SQLite database, embedding search, topic retrieval, and feedback. |
+| `qna_helper.py` | Enables context-based question answering from archives. |
+| `images/` | Contains UI assets (logo, icon, graph visualization). |
+| `static/css/style.css` | Defines UI look and feel for Streamlit. |
+
