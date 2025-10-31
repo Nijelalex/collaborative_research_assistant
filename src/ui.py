@@ -12,6 +12,8 @@ from db import (
     get_recent_topics, 
     save_feedback
 )
+from qna_helper import generate_answer
+
 from docx import Document
 import fitz
 
@@ -227,3 +229,15 @@ if st.button("Generate Literature Review") and (topic or uploaded_text):
         st.markdown(f'<div class="agent-box">{citations}</div>', unsafe_allow_html=True)
 
     st.success("🎉 Research summary complete!")
+
+st.markdown("---")
+st.markdown("<h3>💡 Ask Your Research Question</h3>", unsafe_allow_html=True)
+
+
+query = st.text_input("Enter your question:", placeholder="e.g., What are the latest AI applications in diabetic retinopathy?")
+
+if st.button("Get Answer") and query:
+    with st.spinner("🔍 Retrieving and generating answer..."):
+        answer = generate_answer(query, top_k=2)
+    st.markdown("### 📝 Answer")
+    st.write(answer)
