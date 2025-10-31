@@ -42,7 +42,7 @@ with open(css_path) as f:
 
 st.markdown(f"""<div class="left-bar">
     <img src="data:image/png;base64,{logo_image_base64}" style="max-width: 100%; height: 140px; margin-bottom: 20px;">
-    <a href="https://smith.langchain.com/o/161479c6-ccc7-4a79-ab5b-8142f6f7ffa0/projects/p/3b9b18d9-9cf6-44be-86d7-900229f33406?timeModel=%7B%22duration%22%3A%227d%22%7D">Open LangSmith Dashboard ↗️</a>    
+    <a href="https://smith.langchain.com/o/161479c6-ccc7-4a79-ab5b-8142f6f7ffa0/projects/p/69d4f614-35b3-4c40-9c32-77abad7a5bee?timeModel=%7B%22duration%22%3A%227d%22%7D">Open LangSmith Dashboard ↗️</a>    
     <div class="graph_bar">
     <p id="graph_overview">Graph Overview 📊</p>
     <img src="data:image/png;base64,{graph_image_base64}" style="max-width: 100%; height: 410px; margin: auto; display: block">
@@ -74,7 +74,7 @@ with st.expander("📜 Recently Asked Topics", expanded=False):
 
 
 
-method = st.radio("Choose retrieval method:", ["Semantic API", 
+method = st.radio("Choose retrieval method:", ["Semantic Scholar API", 
                                                "Archives",
                                                "Upload Document"]
                                                , horizontal=True)
@@ -159,7 +159,7 @@ if st.button("Generate Literature Review") and (topic or uploaded_text):
     # progress.progress(1.0)
 
     if state.get("retrieval_failed", False):
-        status.warning("⚠️ Retrieval failed — Semantic API request free tier exceeded.")
+        status.warning("⚠️ Retrieval failed — Semantic scholar API request free tier exceeded.")
     else:
         status.success(f"✅ All agents completed in {elapsed:.1f} seconds!")
     
@@ -170,7 +170,7 @@ if st.button("Generate Literature Review") and (topic or uploaded_text):
         return getattr(value, "content", value)
     
     # Extract outputs
-    summary = safe_get(state.get("summary"),default="Semantic API free requests exceeded")
+    summary = safe_get(state.get("summary"),default="Semantic scholar API free requests exceeded")
     critique = safe_get(state.get("critique"), default="🧐 Critique unavailable")
     review = safe_get(state.get("final"),default="📚 Literature review unavailable")
     citations = safe_get(state.get("citations"),default="🔖 References pending")
@@ -231,13 +231,13 @@ if st.button("Generate Literature Review") and (topic or uploaded_text):
     st.success("🎉 Research summary complete!")
 
 st.markdown("---")
-st.markdown("<h3>💡 Ask Your Research Question</h3>", unsafe_allow_html=True)
+st.markdown("<div><h3>💡 Ask Your Research Question</h3><p>The assistant will provide answers based on the archived results</p></div>", unsafe_allow_html=True)
 
 
 query = st.text_input("Enter your question:", placeholder="e.g., What are the latest AI applications in diabetic retinopathy?")
 
 if st.button("Get Answer") and query:
     with st.spinner("🔍 Retrieving and generating answer..."):
-        answer = generate_answer(query, top_k=2)
+        answer = generate_answer(query, top_k=1)
     st.markdown("### 📝 Answer")
     st.write(answer)
