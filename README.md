@@ -52,7 +52,7 @@ This app integrates **retrieval-augmented generation (RAG)** with a multi-agent 
 
 ---
 
-## Components
+## ⚙️ Components
 
 | Component | Description |
 |------------|-------------|
@@ -63,3 +63,8 @@ This app integrates **retrieval-augmented generation (RAG)** with a multi-agent 
 | `images/` | Contains UI assets (logo, icon, graph visualization (persisted)). |
 | `static/css/style.css` | Defines UI/UX for Streamlit. |
 
+---
+
+## 📊 User Interface
+
+![UI](https://github.com/Nijelalex/collaborative_research_assistant/blob/master/images/semantic_api.png)
