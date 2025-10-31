@@ -24,6 +24,8 @@ This app integrates **retrieval-augmented generation (RAG)** with a multi-agent 
 
 `streamlit run src/ui.py`
 
+---
+
 ## 🦉 Usage Workflow
 
 1. Enter a Topic — e.g. “Large Language Models in Healthcare”.
