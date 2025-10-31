@@ -23,10 +23,11 @@ class ResearchAssistantState(TypedDict):
     citations: str
     final: str
     retrieval_failed: bool
+    use_api: bool
 
 def retriever_node(state: ResearchAssistantState, callback=None) -> ResearchAssistantState:
     retrieve = get_retriever_agent()
-    state["retrieval_failed"], state["citations"], state["context"] = retrieve(state["topic"])
+    state["retrieval_failed"], state["citations"], state["context"] = retrieve(state["topic"], state["context"], state['use_api'])
     if callback:
         callback("🔍 Retriever agent completed")
     return state

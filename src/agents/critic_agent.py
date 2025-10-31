@@ -7,7 +7,7 @@ def get_critic_agent():
     def critique(summary):
         prompt = HumanMessage(content=
             "Critically evaluate the following research summary: "
-            "identify strengths, weaknesses, and potential research gaps.\n\n"
+            "identify strengths, weaknesses, and potential research gaps providing 2 points for each.\n\n"
             f"{summary}\n\nCritique:"
         )
         return llm.invoke([prompt])

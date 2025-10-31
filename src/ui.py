@@ -12,14 +12,17 @@ from db import (
     get_recent_topics, 
     save_feedback
 )
-
-st.set_page_config(page_title="Collaborative Research Assistant", page_icon="🧠", layout="wide")
-
+from docx import Document
+import fitz
 
 # --- Base directory of project ---
 BASE_DIR = Path.cwd()
 GRAPH_PATH = Path.cwd() / "images" / "graph.png"
 LOGO_PATH = Path.cwd() / "images" / "logo.png"
+ICON_PATH = Path.cwd() / "images" / "icon.png"
+
+st.set_page_config(page_title="AI Research Assistant", page_icon=ICON_PATH, layout="wide")
+
 
 with open(GRAPH_PATH, "rb") as f:
     graph_image_base64 = base64.b64encode(f.read()).decode("utf-8")
@@ -45,8 +48,8 @@ st.markdown(f"""<div class="left-bar">
     </div>
 """, unsafe_allow_html=True)
 
-st.title("🧠 Collaborative Research Assistant")
-st.markdown("Generate research summaries, critiques, and literature reviews using multi-agent collaboration.")
+st.title("🧠 AI Research Assistant")
+st.markdown("A Gen-AI assistant that helps higher-education students discover, understand, and summarize research papers on a given topic — to support assignments, theses, or learning")
 
 graph = build_graph()
 
@@ -69,10 +72,40 @@ with st.expander("📜 Recently Asked Topics", expanded=False):
 
 
 
-method = st.radio("Choose retrieval method:", ["Semantic API", "Archives"],horizontal=True)
+method = st.radio("Choose retrieval method:", ["Semantic API", 
+                                               "Archives",
+                                               "Upload Document"]
+                                               , horizontal=True)
 
+uploaded_text = None
+uploaded_file = None
 
-if st.button("Generate Literature Review") and topic:
+if method == "Upload Document":
+    uploaded_file = st.file_uploader(
+        "📄 Upload your research paper (PDF or DOCX)",
+        type=["pdf", "docx"],
+        help="Upload a file instead of entering a topic"
+    )
+
+    if uploaded_file:
+        if uploaded_file.name.endswith(".pdf"):
+            # --- Extract text from PDF ---
+            pdf_reader = fitz.open(stream=uploaded_file.read(), filetype="pdf")
+            uploaded_text = ""
+            for page in pdf_reader:
+                uploaded_text += page.get_text("text")
+
+        elif uploaded_file.name.endswith(".docx"):
+            from docx import Document
+            doc = Document(uploaded_file)
+            uploaded_text = "\n".join([para.text for para in doc.paragraphs])
+
+        # Display preview
+        st.success(f"✅ Uploaded: {uploaded_file.name}")
+        with st.expander("📖 Document Preview (first 1000 chars)"):
+            st.text(uploaded_text[:1000])
+
+if st.button("Generate Literature Review") and (topic or uploaded_text):
     st.info(f"🚀 Starting research process for: **{topic}**")
     # Create progress bar and status placeholder
     # progress = st.progress(0)
@@ -81,16 +114,18 @@ if st.button("Generate Literature Review") and topic:
     
     def status_update(msg):
         status.info(msg)
+        time.sleep(0.05)
 
     state = {
         "student_id": "S001", # Dummy (until user session created)
-        "topic": topic,
-        "context": "",
+        "topic": topic if topic else "Uploaded_Paper",
+        "context": uploaded_text if uploaded_text else "",
         "summary": "",
         "critique": "",
         "citations": "",
         "final": "", 
-        "retrieval_failed": False
+        "retrieval_failed": False,
+        "use_api": True if not uploaded_text else False
         }
 
     # --- Integrate RAG / Archives ✅

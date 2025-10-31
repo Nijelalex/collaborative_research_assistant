@@ -91,7 +91,7 @@ def search_similar_rag(query, top_k=3, DB_PATH="outputs/rag_store.db"):
 def get_recent_topics(limit=5):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT topic, created_at FROM rag_store ORDER BY created_at DESC LIMIT ?", (limit,))
+    cursor.execute("SELECT topic, created_at FROM rag_store WHERE topic !='Uploaded_Paper' ORDER BY created_at DESC LIMIT ?", (limit,))
     rows = cursor.fetchall()
     conn.close()
     # Convert to list of dicts for Streamlit table
