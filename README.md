@@ -57,8 +57,9 @@ This app integrates **retrieval-augmented generation (RAG)** with a multi-agent 
 | Component | Description |
 |------------|-------------|
 | `langgraph_flow.py` | Defines the LangGraph agent flow for research orchestration. |
-| `db.py` | Handles SQLite database, embedding search, topic retrieval, and feedback. |
+| `db.py` | Handles SQLite database, embedding search, topic retrieval |
+| `ui.py` | The Streamlist UI with all components for seach and qna. |
 | `qna_helper.py` | Enables context-based question answering from archives. |
-| `images/` | Contains UI assets (logo, icon, graph visualization). |
-| `static/css/style.css` | Defines UI look and feel for Streamlit. |
+| `images/` | Contains UI assets (logo, icon, graph visualization (persisted)). |
+| `static/css/style.css` | Defines UI/UX for Streamlit. |
 
